@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        width: 900px;
+        margin: 0 auto;
+        color: rgb(80, 89, 115);
+
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 30px;
+      }
+      .is-flex {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+      }
+      .skills-container {
+        width: 30%;
+      }
+      .profile-container {
+        width: 70%;
+      }
+      .profesionnal-experience-item:not(:first-of-type) {
+        margin-top: 30px;
+        border-top: 2px solid rgb(80, 89, 115);
+      }
+      .profile {
+        font-size: 42px;
+        margin: 0;
+      }
+      .rol {
+        margin-top: 5px;
+        color: rgb(214, 99, 46);
+        font-size: 23px;
+        font-weight: 400;
+      }
+      .name-title {
+        margin-bottom: 0px;
+      }
+      .bold {
+        font-weight: bold;
+      }
+      .italic {
+        font-style: italic;
+      }
+      .under {
+        text-decoration: underline;
+      }
+      .margin0 {
+        margin: 0;
+      }
+      .revision-date {
+        text-align: right;
+        margin-top: 20px;
+      }
+      .technologies-container {
+        margin-top: 20px;
+      }
+      .is-relative {
+        position: relative;
+      }
+      .is-absolute {
+        position: absolute;
+      }
+      .container {
+        height: 50px;
+        margin: 30px 0;
+      }
+      .logo {
+        width: 251px;
+        height: 48px;
+        left: 40%;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1 class="profile">{{candidate_info.preferred_name}}</h1>
+      <h3 class="rol">{{candidate_info.role}}</h3>
+    </div>
+    <div class="is-flex">
+      <div class="skills-container">
+        <div>
+          <h3 class="name-title italic under">Skills</h3>
+          <ul class="margin0">
+            {% for skill in candidate_info.skills.all%}
+            <li>{{skill.name}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% if candidate_info.certifications.count > 0 %}
+        <div>
+          <h4 class="name-title italic under">Certifications</h4>
+          <ul class="margin0">
+            {% for certification in candidate_info.certifications.all%}
+            <li>{{certification.name }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {%endif%}
+      </div>
+      <div class="profile-container">
+        <div>
+          <h3 class="name-title italic under">Profile</h3>
+          <p class="margin0">{{candidate_info.profile}}</p>
+        </div>
+        <div>
+          <h3 class="name-title italic under">Professional experience</h3>
+          {% for experience in candidate_experiences %}
+          <div class="profesionnal-experience-item">
+            <div>
+              <span class="bold">Role:</span>
+              <span>{{experience.role}}</span>
+            </div>
+            <div>
+              <span class="bold">Company:</span>
+              <span>{{experience.company}}</span>
+            </div>
+            <div>
+              <span class="bold">Period:</span>
+              <span>{{experience.period}}</span>
+            </div>
+            <div>
+              <span class="bold">Industry:</span>
+              <span>{{experience.industry}}</span>
+            </div>
+            {% if experience.use_case %}
+            <div>
+              <span class="bold">Use case:</span>
+              <span>{{experience.use_case}}</span>
+            </div>
+            {% endif%}
+            <div>
+              <h4 class="name-title bold margin0">Responsibilities</h4>
+              <ul class="margin0">
+                {%for responsability in experience.responsibilities.all %}
+                <li>{{responsability.name}}</li>
+                {%endfor%}
+              </ul>
+            </div>
+            <div class="technologies-container">
+              <span class="bold">Technologies:</span>
+              <span> {{experience.technologies.all|join:", "}} </span>
+            </div>
+          </div>
+          {%endfor%}
+        </div>
+        <p class="revision-date">Revision date: {{last_revision|date:"M Y"}}</p>
+      </div>
+    </div>
+  </body>
+</html>

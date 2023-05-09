@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  front:
+    build: resume-generator/.
+    restart: always
+    volumes:
+      - ./resume-generator:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000
+  api:
+    build: resume-generator-api/.
+    working_dir: /usr/src/app
+    command: >
+      bash -c "
+        python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - ./resume-generator-api:/usr/src/app/
+    ports:
+      - "8000:8000"
