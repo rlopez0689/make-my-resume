@@ -49,7 +49,6 @@ class CandidateViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def export(self, request, pk=None):
         template = 'pdf/candidate_resume.html'
-        banner = 'static/img/logotype-horizontal.png'
 
         pdf_options = {
             'enable-local-file-access': "",

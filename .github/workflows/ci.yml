@@ -2,14 +2,17 @@ name: "Unittest and Linting"
 on:
   push:
     branches:
-      - dev
+      - master
   pull_request:
     branches:
-      - dev
+      - master
 
 jobs:
   backend:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: ./resume-generator-api
 
     steps:
       - name: Checkout
@@ -38,6 +41,9 @@ jobs:
           pylint --load-plugins pylint_django --django-settings-module=resume_generator_api.settings **/*.py
   frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./resume-generator
     steps:
       - name: Checkout
         uses: actions/checkout@v2
