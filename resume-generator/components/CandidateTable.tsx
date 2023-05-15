@@ -1,5 +1,4 @@
 import { ResumeList } from "@/pages/api/resumes";
-import { fetchResumeFile } from "@/requests/requests";
 import {
   CheckIcon,
   DownloadIcon,
@@ -9,109 +8,62 @@ import {
 } from "@chakra-ui/icons";
 import {
   HStack,
-  Table,
-  TableContainer,
-  Tbody,
   Td,
-  Th,
-  Thead,
   Tr,
   useClipboard,
-  useToast,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useMutation } from "react-query";
+import { Table } from "@/components/UI/Table"
+import useFetchResume from "@/hooks/useFetchResume";
 
 const CandidateTable = ({ resumes }: { resumes: ResumeList[] }) => {
-  const toast = useToast();
+  const headers = ['Name', 'Email', 'Role', 'Last Updated', '']
+  const fetchResume = useFetchResume()
   const mutation = useMutation({
-    mutationFn: async (uuid: string) => {
-      try {
-        const response = await fetchResumeFile(uuid)
-        const fileBlob = new Blob([response.data]);
-        var link = document.createElement("a");
-        link.href = window.URL.createObjectURL(fileBlob);
-        link.download = "cv.pdf";
-        link.click();
-        link.remove();
-      } catch (error) {
-        toast({
-          title: "Request Error, can't retrieve file at the moment",
-          status: "error",
-          position: "top-right",
-          duration: 6000,
-          isClosable: true,
-        });
-      }
-    },
+    mutationFn: async (uuid: string) => fetchResume(uuid),
   });
   return (
-    <TableContainer bg="white" borderRadius={5}>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Email</Th>
-            <Th>Role</Th>
-            <Th>Last Updated</Th>
-            <Th></Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {resumes.map((resume) => (
-            <TableRow
-              key={resume.id}
-              resume={resume}
-              onDownload={(uuid) => mutation.mutate(uuid)}
-              isLoading={mutation.isLoading}
-            />
-          ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
+    <Table headers={headers}>
+      {resumes.map((resume) => (
+        <Tr key={resume.id} role="group">
+          <Td>{resume.name}</Td>
+          <Td>{resume.email}</Td>
+          <Td>{resume.role}</Td>
+          <Td>{resume.last_edited}</Td>
+          <Td>
+            <HStack gap={3} _groupHover={{ opacity: 1 }} opacity={0}>
+              <Link href={`app/${resume.candidate_uuid}/resume`}>
+                <EditIcon />
+              </Link>
+              {!mutation.isLoading ? (
+                <DownloadIcon
+                  cursor="pointer"
+                  onClick={() => mutation.mutate(resume.candidate_uuid)}
+                />
+              ) : (
+                <RepeatIcon />
+              )}
+              <CopyResume id={resume.candidate_uuid} />
+            </HStack>
+          </Td>
+        </Tr>
+      ))}
+    </Table>
   );
 };
 
-const TableRow = ({
-  resume,
-  onDownload,
-  isLoading,
-}: {
-  resume: ResumeList;
-  onDownload: (arg1: string) => void;
-  isLoading: boolean;
-}) => {
+const CopyResume = ({ id }: { id: string }) => {
   const { onCopy, hasCopied } = useClipboard(
-    `${location.origin}/${resume.candidate_uuid}/resume`
+    `${location.origin}/app/${id}/resume`
   );
   return (
-    <Tr key={resume.id} role="group">
-      <Td>{resume.name}</Td>
-      <Td>{resume.email}</Td>
-      <Td>{resume.role}</Td>
-      <Td>{resume.last_edited}</Td>
-      <Td>
-        <HStack gap={3} _groupHover={{ opacity: 1 }} opacity={0}>
-          <Link href={`app/${resume.candidate_uuid}/resume`}>
-            <EditIcon />
-          </Link>
-          {!isLoading ? (
-            <DownloadIcon
-              cursor="pointer"
-              onClick={() => onDownload(resume.candidate_uuid)}
-            />
-          ) : (
-            <RepeatIcon />
-          )}
-          {hasCopied ? (
-            <CheckIcon />
-          ) : (
-            <LinkIcon cursor="pointer" onClick={onCopy} />
-          )}
-        </HStack>
-      </Td>
-    </Tr>
-  );
-};
+    hasCopied ? (
+      <CheckIcon />
+    ) : (
+      <LinkIcon cursor="pointer" onClick={onCopy} />
+    )
+  )
+}
 
 export default CandidateTable;
